@@ -1,4 +1,6 @@
 #include <cstdint>
+#include <fstream>
+#include <iosfwd>
 #include <iostream>
 
 typedef struct chip8 {
@@ -51,8 +53,43 @@ void initChip8(chip8 &cpu) {
   }
 }
 
-int main(void) {
+// need to check for 0 return before continuing with the cpu cycle, if return is
+// 1 stop the program
+int loadRom(chip8 &cpu, char *filename) {
+  // inicia um cursor que vai receber o tamanho da rom
+  std::streampos size;
+  // opens the file in if mode (read mode) deafult ios is in for ifstream, opens
+  // in binary, set the pointer then to the end of the file with ios::ate, this
+  // is needed for dinamicly getting the size for the size var above
+  std::ifstream file(filename, std::ios::in | std::ios::binary | std::ios::ate);
+  if (!file.is_open()) {
+    std::cout << "file could not be open" << std::endl;
+    return 1;
+  }
+  // pass the size of the file to size cursor
+  size = file.tellg();
+  // set the file cursor to the beggining again
+  // for the copy to work
+  file.seekg(0, std::ios::beg);
+  // copy the contents of the rom to the cpu memory starting at pc
+  // counter (0x200), aos need to rcast the uint8_t to char* using
+  // reinterpret_cast<char*>() as its expected for the read method
+  file.read(reinterpret_cast<char *>(&cpu.memory[cpu.pc]), size);
+
+  file.close();
+  return 0;
+}
+
+int main(int argc, char *argv[]) {
+  // initialize chip8 as CHIP8 and run initialize func
   chip8 CHIP8;
   initChip8(CHIP8);
-  std::cout << CHIP8.pc << std::endl;
+  // run check if rom is loaded correctly
+  int isNotLoaded = loadRom(CHIP8, argv[1]);
+  if (isNotLoaded) {
+    std::cout << "Ending program!" << std::endl;
+  }
+  std::cout << "Rom loaded with sucess" << std::endl;
+
+  // continue the cycle
 }
