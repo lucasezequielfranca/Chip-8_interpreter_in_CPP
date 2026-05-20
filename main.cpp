@@ -1,7 +1,9 @@
+#include <algorithm>
 #include <cstdint>
 #include <fstream>
 #include <iosfwd>
 #include <iostream>
+#include <iterator>
 
 typedef struct chip8 {
   // memory is set to 4096 bytes
@@ -78,6 +80,72 @@ int loadRom(chip8 &cpu, char *filename) {
 
   file.close();
   return 0;
+}
+
+void executeCicle(chip8 &cpu) {
+  uint16_t opcode = (cpu.memory[cpu.pc] << 8) | (cpu.memory[cpu.pc + 1]);
+  cpu.pc += 2;
+
+  uint8_t type = (opcode & 0xF000) >> 12; // first nibble (4bits) type of opcode
+  uint8_t X = (opcode & 0x0F00) >> 8;     // second nibble
+  uint8_t Y = (opcode & 0x00F0) >> 4;     // third nibble
+  uint8_t N = (opcode & 0x000F);          // last nibble
+  uint8_t NN = (opcode & 0x00FF);         // third and last nibble
+  uint16_t NNN = (opcode & 0x0FFF);       // second, third and last nibble
+
+  switch (type) {
+  case 0x0: {
+    switch (NN) {
+      // clear the display buffer
+    case 0xE0: {
+      std::fill(std::begin(cpu.display), std::end(cpu.display), 0);
+      break;
+    }
+    }
+  }
+    // jump, set pc to NNN just it
+  case 0x1: {
+    cpu.pc = NNN;
+    break;
+  }
+  case 0x2: {
+  }
+  case 0x3: {
+  }
+  case 0x4: {
+  }
+  case 0x5: {
+  }
+    // set VX to NN
+  case 0x6: {
+    cpu.vRegister[X] = NN;
+    break;
+  }
+    // ADD to VX the value of NN
+  case 0x7: {
+    cpu.vRegister[X] += NN;
+    break;
+  }
+  case 0x8: {
+  }
+  case 0x9: {
+  }
+    // set register i to NNN
+  case 0xA: {
+    cpu.i = NNN;
+    break;
+  }
+  case 0xB: {
+  }
+  case 0xC: {
+  }
+  case 0xD: {
+  }
+  case 0xE: {
+  }
+  case 0xF: {
+  }
+  }
 }
 
 int main(int argc, char *argv[]) {
