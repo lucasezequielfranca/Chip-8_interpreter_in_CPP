@@ -159,24 +159,48 @@ void executeCicle(chip8 &cpu) {
     // row N
     for (uint8_t row = 0; row < N; row++) {
 
+      // check if coord initial Y + the row to drawn now is still inside the
+      // screen, else breaks
       if ((YCoord + row) >= 32) {
         break;
       }
 
+      // sprite data of the row is loaded from starting at i register and going
+      // up for every row, i does not increment
       uint8_t spriteData = cpu.memory[cpu.i + row];
 
+      // will iterate 8 times for every row aka for every bit in the row
       for (uint8_t collum = 0; collum < 8; collum++) {
+        // same check of above but now checks if the sprite is inside the screen
+        // to the right
         if (XCoord + collum >= 64) {
           break;
         }
+        // screen index for the display array will be, deafult x,y value +
+        // collum for x (aka default x value + offset to the right for every
+        // collum (bit)), and deafult Y coord + (jumps 64 indexs for every row
+        // not used, ex. for row at coord 10 out of 32, will jump 10 * 64, as
+        // every horizontal line have 64 spaces)
         uint16_t screenIndex = (XCoord + collum) + ((YCoord + row) * 64);
+        // mask sprite data ex 01010101 with 0x80 (10000000) bitshifted by
+        // collum number ex. if collum is 5 0x80 will be shifted to right to
+        // become (00000100) this get the 6th (0-7 so 5 is actualy the 6th), bit
+        // data so is true if anything above 0 ie. 1 or above
         uint8_t bit = spriteData & (0x80 >> collum);
+
+        // if bit from collum is 0 do nothing as theres nothing to drawn
         if (!bit) {
           continue;
         }
+        // if bit is true and screenIndex aka bit in the display buffer is 1,
+        // set VF register to 1 (aka colision register)
         if (cpu.display[screenIndex]) {
           cpu.vRegister[0xF] = 1;
         }
+        // will perform a xor operation in the display with bit on or off if the
+        // bit is off in display and on 1 sprite, display gets on. if display is
+        // on and sprite bit is on, display gets off, and trigger above the
+        // collision register
         cpu.display[screenIndex] ^= bit;
       }
     }
