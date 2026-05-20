@@ -1,9 +1,12 @@
 #include <algorithm>
+#include <chrono>
 #include <cstdint>
 #include <fstream>
 #include <iosfwd>
 #include <iostream>
 #include <iterator>
+#include <ostream>
+#include <thread>
 
 typedef struct chip8 {
   // memory is set to 4096 bytes
@@ -84,6 +87,8 @@ int loadRom(chip8 &cpu, char *filename) {
 
 void executeCicle(chip8 &cpu) {
   uint16_t opcode = (cpu.memory[cpu.pc] << 8) | (cpu.memory[cpu.pc + 1]);
+  std::cout << "Executing Opcode: 0x" << std::hex << opcode << " at PC: 0x"
+            << cpu.pc << std::dec << std::endl;
   cpu.pc += 2;
 
   uint8_t type = (opcode & 0xF000) >> 12; // first nibble (4bits) type of opcode
@@ -100,8 +105,9 @@ void executeCicle(chip8 &cpu) {
     case 0xE0: {
       std::fill(std::begin(cpu.display), std::end(cpu.display), 0);
       break;
+    } break;
     }
-    }
+    break;
   }
     // jump, set pc to NNN just it
   case 0x1: {
@@ -139,7 +145,42 @@ void executeCicle(chip8 &cpu) {
   }
   case 0xC: {
   }
+  // quit complex to comment here the DXYN instruction;
   case 0xD: {
+    // get the modulo (the "resto" da divisao), pra pegar o quanto sobra apos
+    // "contornar" a tela algumas vezes, apos o wrap around e pega a cordenada
+    // de inicio e a cordenada de fim do sprite
+    uint8_t XCoord = cpu.vRegister[X] & 0x3F;
+    uint8_t YCoord = cpu.vRegister[Y] & 0x1F;
+
+    cpu.vRegister[0xF] = 0;
+
+    // counts from 0 to N to drawn a sprite of pixels from top (0), to bottom at
+    // row N
+    for (uint8_t row = 0; row < N; row++) {
+
+      if ((YCoord + row) >= 32) {
+        break;
+      }
+
+      uint8_t spriteData = cpu.memory[cpu.i + row];
+
+      for (uint8_t collum = 0; collum < 8; collum++) {
+        if (XCoord + collum >= 64) {
+          break;
+        }
+        uint16_t screenIndex = (XCoord + collum) + ((YCoord + row) * 64);
+        uint8_t bit = spriteData & (0x80 >> collum);
+        if (!bit) {
+          continue;
+        }
+        if (cpu.display[screenIndex]) {
+          cpu.vRegister[0xF] = 1;
+        }
+        cpu.display[screenIndex] ^= bit;
+      }
+    }
+    break;
   }
   case 0xE: {
   }
@@ -159,5 +200,23 @@ int main(int argc, char *argv[]) {
   }
   std::cout << "Rom loaded with sucess" << std::endl;
 
-  // continue the cycle
+  while (true) {
+    executeCicle(CHIP8);
+
+    std::cout << "\x1B[2J\x1B[H";
+
+    for (int i = 0; i < 32; i++) {
+      for (int j = 0; j < 64; j++) {
+        if (CHIP8.display[j + (i * 64)]) {
+          std::cout << "█";
+        } else {
+
+          std::cout << " ";
+        }
+      }
+      std::cout << std::endl;
+    }
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(2));
+  }
 }
