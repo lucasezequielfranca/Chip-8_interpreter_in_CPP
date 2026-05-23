@@ -18,6 +18,7 @@ Chip8::Chip8() {
   sound_timer = 0;
   gfx.fill(0);
   update_screen_flag = 0;
+  instructions_per_second = 12;
 }
 Chip8::~Chip8() {}
 

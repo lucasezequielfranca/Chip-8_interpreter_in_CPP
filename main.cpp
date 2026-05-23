@@ -10,15 +10,34 @@ uint8_t exit_program();
 
 int main(int argc, char *argv[]) {
   try {
-    Chip8 cpu;
-    cpu.initialize();
-    cpu.load_rom(argv[1]);
-    Display display;
+    // initialize the interpreter, load the rom, and tries to initialize the
+    // sdl2 display
+    Chip8 chip8;
+    chip8.initialize();
+    chip8.load_rom(argv[1]);
+    Display display(chip8);
 
+    // starting time at system clock, this will get increaser every 1/60th of a
+    // second, the rate of the chip8 timers. Bellow in the code chrono will
+    // sleep until it completes 1/60 of a second and goes on
+    auto start_time = std::chrono::system_clock::now();
     while (true) {
-      cpu.execute_cycle();
-      display.update_screen(cpu);
-      std::this_thread::sleep_for(std::chrono::milliseconds(17));
+      start_time += std::chrono::microseconds(16660);
+
+      // executes deafult = 12 instructions per second, per loop, 12 * 60 (loops
+      // per seconds), results in ~700 instructions per second, pretty close to
+      // default chip8
+      for (uint8_t i = 0; i < chip8.instructions_per_second; i++) {
+        chip8.execute_cycle();
+
+        // checks if the screen have any changes if so updates it
+        if (chip8.update_screen_flag) {
+          display.update_screen(chip8);
+          chip8.update_screen_flag = 0;
+        }
+      }
+
+      std::this_thread::sleep_until(start_time);
     }
 
   } catch (std::runtime_error e) {

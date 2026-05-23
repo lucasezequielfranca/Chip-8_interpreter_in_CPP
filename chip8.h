@@ -11,8 +11,11 @@ public:
   void initialize();
   uint8_t load_rom(char *filename);
   void execute_cycle();
-  std::array<uint8_t, 64 * 32> gfx;
-  uint8_t update_screen_flag;
+  inline static constexpr uint8_t GFX_WIDTH = 64;
+  inline static constexpr uint8_t GFX_HEIGHT = 32;
+  std::array<uint8_t, GFX_WIDTH * GFX_HEIGHT> gfx; // display array
+  uint8_t update_screen_flag;                      // flag to update screen
+  uint8_t instructions_per_second;
 
 private:
   std::array<uint8_t, 4096> memory;

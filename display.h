@@ -10,7 +10,7 @@
 
 class Display {
 public:
-  Display();
+  Display(Chip8 &chip8);
   ~Display();
   void update_screen(Chip8 &chip8);
 
@@ -18,7 +18,8 @@ private:
   SDL_Window *window;
   SDL_Renderer *renderer;
   SDL_Texture *texture;
-  inline static uint16_t SCREEN_WIDTH = 640;
-  inline static int16_t SCREEN_HEIGHT = 320;
+
+  // this is chip8 display pixel array converted to sdl2 format
+  // of pixel in rgba
   std::array<uint32_t, 64 * 32> pixel_data;
 };
