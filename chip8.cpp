@@ -13,6 +13,7 @@ Chip8::Chip8() {
   pc = 0;
   i = 0;
   stack.fill(0);
+  stack_pointer = 0;
   v_register.fill(0);
   delay_timer = 0;
   sound_timer = 0;
@@ -68,6 +69,10 @@ void Chip8::execute_cycle() {
   NNN = opcode & 0x0FFF;
 
   switch (type) {
+  default:
+    std::cout << "Could Not decode opcode: " << static_cast<int>(opcode)
+              << std::endl;
+    break;
   case 0x0:
     switch (NN) {
     default:
@@ -77,16 +82,76 @@ void Chip8::execute_cycle() {
     case 0xE0:
       gfx.fill(0);
       break;
+    case 0xEE:
+      pc = stack[stack_pointer];
+      stack[stack_pointer] = 0;
+      stack_pointer--;
+      break;
+    case 0x00:
+      break;
     }
     break;
   case 0x1:
     pc = NNN;
+    break;
+  case 0x2:
+    stack[stack_pointer] = pc;
+    stack_pointer++;
+    pc = NNN;
+    break;
+  case 0x3:
+    if (v_register[X] == NN) {
+      pc += 2;
+    }
+    break;
+  case 0x4:
+    if (v_register[X] != NN) {
+      pc += 2;
+    }
+    break;
+  case 0x5:
+    if (v_register[X] == v_register[Y]) {
+      pc += 2;
+    }
     break;
   case 0x6:
     v_register[X] = NN;
     break;
   case 0x7:
     v_register[X] += NN;
+    break;
+  case 0x8:
+    switch (N) {
+    default:
+      std::cout << "Could Not decode opcode: " << static_cast<int>(opcode)
+                << std::endl;
+      break;
+    case 0:
+      v_register[X] = v_register[Y];
+      break;
+    case 1:
+      v_register[X] = (v_register[X] | v_register[Y]);
+      break;
+    case 2:
+      v_register[X] = (v_register[X] & v_register[Y]);
+      break;
+    case 3:
+      v_register[X] = (v_register[X] ^ v_register[Y]);
+      break;
+    case 4:
+      uint8_t sum = (v_register[X] + v_register[Y]);
+      v_register[0xF] = 0;
+      if (v_register[X] > sum) {
+        v_register[0xF] = 1;
+      }
+      v_register[X] = sum;
+      break;
+    }
+    break;
+  case 0x9:
+    if (v_register[X] != v_register[Y]) {
+      pc += 2;
+    }
     break;
   case 0xA:
     i = NNN;

@@ -23,6 +23,7 @@ private:
   uint16_t pc;
   uint16_t i;
   std::array<uint16_t, 16> stack;
+  uint8_t stack_pointer;
   std::array<uint8_t, 16> v_register;
   uint8_t delay_timer;
   uint8_t sound_timer;
