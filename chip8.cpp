@@ -30,7 +30,10 @@ Chip8::Chip8() {
   NN = 0;
   NNN = 0;
   basic_emulator_flag = 0;
+  amiga_quirck = 1;
   keypad.fill(0);
+  keywaiting = 0;
+  key_up_hex = 16;
 }
 Chip8::~Chip8() {}
 
@@ -245,5 +248,52 @@ void Chip8::execute_cycle() {
       pc += 2;
     }
     break;
+  case 0xF:
+    switch (NN) {
+    default:
+      std::cout << "Could Not decode opcode: " << std::hex << (opcode)
+                << std::endl;
+      break;
+    case 0x07:
+      v_register[X] = delay_timer;
+      break;
+    case 0x15:
+      delay_timer = v_register[X];
+      break;
+    case 0x18:
+      sound_timer = v_register[X];
+      break;
+    case 0x1E: {
+      if (amiga_quirck) {
+        uint16_t start_i_value = i;
+        uint16_t sum = (i + v_register[X]);
+        uint8_t check = (sum & 0xF000) >> 12;
+        i = sum & 0x0FFF;
+        if (check) {
+          v_register[0xF] = 1;
+        } else {
+          v_register[0xF] = 0;
+        }
+        break;
+      } else {
+        i = (i + v_register[X]) & 0x0FFF;
+        break;
+      }
+    }
+    case 0x0A: {
+      keywaiting = 1;
+
+      if (key_up_hex < 16) {
+        v_register[X] = key_up_hex & 0x00FF;
+        keywaiting = 0;
+        key_up_hex = 16;
+        break;
+      } else {
+        pc -= 2;
+        break;
+      }
+      break;
+    }
+    }
   }
 }

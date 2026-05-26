@@ -101,10 +101,22 @@ void Display::handle_events(Chip8 &chip8) {
       for (uint8_t i = 0; i < 16; i++) {
         if (key == configurable_keys[i]) {
           chip8.keypad[i] = 0;
+          if (chip8.keywaiting == 1) {
+            chip8.key_up_hex = i;
+          }
         }
       }
       break;
     } break;
     }
+  }
+}
+
+void Chip8::decrease_timers() {
+  if (delay_timer > 0) {
+    delay_timer--;
+  }
+  if (sound_timer > 0) {
+    sound_timer--;
   }
 }

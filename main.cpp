@@ -29,13 +29,14 @@ int main(int argc, char *argv[]) {
       }
       start_time += std::chrono::microseconds(16660);
 
+      display.handle_events(chip8);
+
       // executes deafult = 12 instructions per loop, 12 * 60 (loops
       // per seconds), results in ~700 instructions per second, pretty close to
       // default chip8
       for (uint8_t i = 0, target = chip8.instructions_per_second / 60;
            i < target; i++) {
         chip8.execute_cycle();
-        display.handle_events(chip8);
 
         if (chip8.keypad[0] == 1) {
           std::cout << "alterou" << std::endl;
@@ -46,6 +47,7 @@ int main(int argc, char *argv[]) {
           chip8.update_screen_flag = 0;
         }
       }
+      chip8.decrease_timers();
 
       std::this_thread::sleep_until(start_time);
     }

@@ -11,6 +11,8 @@ public:
   void initialize();
   uint8_t load_rom(char *filename);
   void execute_cycle();
+  void decrease_timers();
+
   inline static constexpr uint8_t GFX_WIDTH = 64;
   inline static constexpr uint8_t GFX_HEIGHT = 32;
   std::array<uint8_t, GFX_WIDTH * GFX_HEIGHT> gfx; // display array
@@ -18,7 +20,10 @@ public:
   uint16_t instructions_per_second;
   uint8_t running_flag;
   uint8_t basic_emulator_flag;
+  uint8_t amiga_quirck;
   std::array<uint8_t, 16> keypad;
+  uint8_t keywaiting;
+  uint16_t key_up_hex;
 
 private:
   std::array<uint8_t, 4096> memory;
