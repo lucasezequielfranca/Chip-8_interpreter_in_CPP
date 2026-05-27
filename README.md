@@ -1,17 +1,14 @@
-# chip8-emu
+# chip8 Interpreter
 
-A simple CHIP-8 interpreter written in C++ using SDL2. I built this project to study emulation, low-level concepts, and how a CPU cycle works in practice. The emulator runs at the original 64x32 resolution, and the core was calibrated using both Octo and Corax+ quirks test ROMs.
+A simple CHIP-8 interpreter written in C++ and SDL2 for graphics. Made to study emulation, low-level concepts, and how a CPU cycle works. The interpreter was tested with Timendius chip8 test suit, wich is included in roms folder.
 
-Since most ROMs you find out there nowadays rely on rules from newer interpreters (from the 90s onwards), I configured the emulator to run with "Modern Quirks" enabled by default.
+The interpreter runs with default CHIP-8 resolutin but have the super-chip quirks enabled as it is required for most games.
 
 ---
 
-## 🚀 What's Working
-
 * **Instruction Cycle (Fetch-Decode-Execute):** Basic cycle implemented, running instructions straight from memory.
-* **Clock Sync:** The CPU runs freely inside a batch of instructions per frame (~720 Hz), while the Timers (Delay/Sound) and the screen renderer run locked at 60 Hz using `std::chrono`.
-* **XOR Graphics:** Rendering based on pixel inversion in the `gfx` matrix, with the `VF` collision register check working properly.
-* **Modern ROM Behavior:** Passing test checks for Shifting (`8XY6`/`8XYE` directly on `VX`), Memory (`FX55`/`FX65` without modifying the `I` index pointer at the end), and sprite clipping at the screen borders.
+* **Clock Sync:** The Cycle runs freely inside a batch of instructions per frame (~700 Hz), while the Timers and the screen renderer run locked at 60 Hz using `std::chrono`.
+* **Tests passeds:**
 
 ---
 
