@@ -44,6 +44,10 @@ Without using a Makefile you will need to use the follow command at root folder:
 ```bash
 # Using g++
 g++ src/*.cpp -o chip8 -std=c++17 -lSDL2
+---
+# Using clang++
+clang++ src/*.cpp -o chip8 -std=c++17 -lSDL2
+```
 
 ---
 
@@ -54,9 +58,7 @@ g++ src/*.cpp -o chip8 -std=c++17 -lSDL2
 
 ---
 
-# Using clang++
-clang++ src/*.cpp -o chip8 -std=c++17 -lSDL2
-```
+
 
 ### Dependencies
 You need a working compiler with C++17 support and the **SDL2** library installed on your system.
