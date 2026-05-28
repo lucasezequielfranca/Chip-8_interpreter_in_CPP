@@ -24,7 +24,7 @@ original chip-8 keypad        mine interpreter keypad
 ## 🕹️ Test Status
 
 * **Pong:** Fully functional and playable. 
-* **Timendius Test Suit:** Passing all checks on the modern behavior screen (with Shift, Memory, and Jump flags enabled).
+* **Timendius Test Suite:** Passing all checks on the modern behavior screen (with Shift, Memory, and Jump flags enabled).
 <table>
   <tr>
     <td><img src="https://github.com/user-attachments/assets/c6e5db39-3efa-485e-946d-9a08db335aa8" alt="Chip-8 Interpreter Running" width="100%"></td>
